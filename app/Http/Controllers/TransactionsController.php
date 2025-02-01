@@ -21,10 +21,10 @@ class TransactionsController extends Controller
         $data = Transaction::query();
 
         $data = $data->where('user_id', Auth::id());
-        $data = $data->where('amount', '>', 0);
-        $data = $data->orderBy('date', 'asc');
+//        $data = $data->where('amount', '>', 0);
+        $data = $data->orderBy('date', 'desc');
 
-        $data = $data->paginate(100);
+        $data = $data->paginate(10);
 
         return Inertia::render('Transactions', [
             'data' => $data,

@@ -1,13 +1,25 @@
 <script setup>
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import {Head, Link} from '@inertiajs/vue3';
-import {computed, onMounted} from 'vue';
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import { ref, computed, onMounted } from 'vue';
+import Pagination from '@/Components/Pagination.vue'
 
 const props = defineProps({
     data: Object,
     filters: Array
 });
+
+const expandedRows = ref([]);
+
+const toggleDetails = (item) => {
+    const id = item.id;
+    console.log("WEdr", id)
+    if (expandedRows.value.includes(id)) {
+        expandedRows.value = expandedRows.value.filter(rowId => rowId !== id);
+    } else {
+        expandedRows.value.push(id);
+    }
+};
 
 onMounted(() => {
     console.log(props.data)
@@ -18,11 +30,12 @@ const transactions = computed(() => {
 });
 
 const displayAmountValue = (val) => {
+    // { notation: "compact", compactDisplay: "long" }
     if (val >= 0) {
-        return '+' + val;
+        return '+' + new Intl.NumberFormat("en-US").format(val)
     }
 
-    return '-' + Math.abs(val);
+    return '-' + new Intl.NumberFormat("en-US").format(Math.abs(val));
 }
 const displayAmountClass = (val) => {
     return val >= 0 ? 'font-bold text-green-600' : 'font-bold text-gray-900';
@@ -58,40 +71,62 @@ const displayDate = (val) => {
         </template>
 
         <div class="mx-auto max-w-7xl ">
-            <div class="p-5 bg-white rounded">
 
-                <div class="table w-full ">
-                    <div class="table-header-group ">
-                        <div class="table-row">
-                            <div class="table-cell text-left ...">Recipient / Sender</div>
-                            <div class="table-cell text-left ...">Category</div>
-                            <div class="table-cell text-left ...">Transaction Date</div>
-                            <div class="table-cell text-right ...">Amount</div>
-                            <div class="table-cell text-right ...">Currency</div>
-                        </div>
-                    </div>
-                    <div class="table-row-group">
-                        <div v-for="item in transactions" :key="item.id" class="table-row">
-                            <div class="table-cell">
-                                {{ item.name }}
-                            </div>
-                            <div class="table-cell">
-                                {{ item.category }}
-                            </div>
-                            <div class="table-cell">
-                                {{ displayDate(item.date) }}
-                            </div>
-                            <div class="table-cell text-right">
-                                <span :class="displayAmountClass(item.amount)">{{ displayAmountValue(item.amount)
-                                    }}</span>
-                            </div>
-                            <div class="table-cell text-right">
-                                <span>{{ item.currency }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+                <table class="w-full border-collapse">
+                    <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Recipient / Sender</th>
+                        <th class="px-4 py-3 text-left">Category</th>
+                        <th class="px-4 py-3 text-left">Transaction Date</th>
+                        <th class="px-4 py-3 text-right">Amount</th>
+                        <th class="px-4 py-3 text-right">Currency</th>
+                        <th class="px-4 py-3 text-center">Details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in transactions" :key="item.id" class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">{{ item.name }}</td>
+                        <td class="px-4 py-3">{{ item.category || "-" }}</td>
+                        <td class="px-4 py-3">{{ displayDate(item.date) }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <span :class="displayAmountClass(item.amount)">{{ displayAmountValue(item.amount) }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-right">{{ item.currency }}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button @click="toggleDetails(item)" class="text-blue-500 hover:underline">
+                                {{ expandedRows.includes(item.id) ? "Hide" : "Show" }}
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- Expandable Row -->
+                    <tr v-for="item in transactions" :key="'details-' + item.id" class="bg-gray-50">
+                        <template v-if="expandedRows.includes(item.id)">
+
+                            <td colspan="6" class="px-4 py-3">
+                                <div class="flex justify-between p-4 border rounded-md bg-white shadow-md">
+                                    <div>
+                                        <h3 class="font-semibold text-lg text-gray-700 mb-3">
+                                            Transaction Details <strong>ID:</strong> {{ item.id }}
+                                        </h3>
+                                        <p><strong>Name:</strong> <span class="font-bold ms-5">{{ item.name }}</span></p>
+                                        <p><strong class="me-1">Amount:</strong> <span :class="displayAmountClass(item.amount)">{{ displayAmountValue(item.amount) }}</span> <span>{{ item.currency }}</span></p>
+                                        <p><strong>Date:</strong> <span class="ms-7">{{ displayDate(item.date) }}</span></p>
+                                        <p><strong>Statement:</strong> <span class="ms-7">{{ item.statement_id || '-' }}</span></p>
+                                    </div>
+
+                                    <div>
+                                        <p><strong>Notes:</strong> <pre>{{ item.details || "No additional details" }}</pre></p>
+                                    </div>
+                                </div>
+                            </td>
+                        </template>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
+
+            <pagination class="mt-6" :links="data.links" />
         </div>
     </DashboardLayout>
 </template>
