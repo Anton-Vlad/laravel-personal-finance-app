@@ -15,6 +15,24 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                green: {
+                    600: '#277C78',
+                },
+                red: {
+                    600: '#dc2626',
+                },
+                gray: {
+                    900: '#201F24'
+                }
+            },
+        },
+        borderRadius: {
+            DEFAULT: '12px', // Set the default 'rounded' class to 12px
+            sm: '4px',
+            md: '8px',
+            lg: '16px',
+            full: '9999px',
         },
     },
 

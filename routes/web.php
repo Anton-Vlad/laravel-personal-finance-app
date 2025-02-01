@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TransactionsController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,9 +19,7 @@ Route::get('/overview', function () {
     return Inertia::render('Overview');
 })->middleware(['auth', 'verified'])->name('overview');
 
-Route::get('/transactions', function () {
-    return Inertia::render('Transactions');
-})->middleware(['auth', 'verified'])->name('transactions');
+Route::get('/transactions', [TransactionsController::class, 'index'])->middleware(['auth', 'verified'])->name('transactions');
 
 Route::get('/budgets', function () {
     return Inertia::render('Budgets');
@@ -40,4 +39,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
