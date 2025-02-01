@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class TransactionsController extends Controller
 {
-        /**
+    /**
      * Display the user's profile form.
      */
     public function index(Request $request): Response

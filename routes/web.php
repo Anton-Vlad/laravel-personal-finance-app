@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StatementsController;
 use App\Http\Controllers\TransactionsController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,12 @@ Route::get('/overview', function () {
 })->middleware(['auth', 'verified'])->name('overview');
 
 Route::get('/transactions', [TransactionsController::class, 'index'])->middleware(['auth', 'verified'])->name('transactions');
+
+Route::group(['middleware' => ['auth', 'verified']], function () {
+    Route::get('/statements', [StatementsController::class, 'index'])->name('statements.index');
+    Route::get('/statements/upload', [StatementsController::class, 'new'])->name('statements.new');
+    Route::post('/statements/upload', [StatementsController::class, 'upload'])->name('statements.upload');
+});
 
 Route::get('/budgets', function () {
     return Inertia::render('Budgets');
