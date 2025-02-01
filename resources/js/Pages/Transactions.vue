@@ -19,10 +19,10 @@ const transactions = computed(() => {
 
 const displayAmountValue = (val) => {
     if (val >= 0) {
-        return '+$' + val;
+        return '+' + val;
     }
 
-    return '-$' + Math.abs(val);
+    return '-' + Math.abs(val);
 }
 const displayAmountClass = (val) => {
     return val >= 0 ? 'font-bold text-green-600' : 'font-bold text-gray-900';
@@ -67,6 +67,7 @@ const displayDate = (val) => {
                             <div class="table-cell text-left ...">Category</div>
                             <div class="table-cell text-left ...">Transaction Date</div>
                             <div class="table-cell text-right ...">Amount</div>
+                            <div class="table-cell text-right ...">Currency</div>
                         </div>
                     </div>
                     <div class="table-row-group">
@@ -83,6 +84,9 @@ const displayDate = (val) => {
                             <div class="table-cell text-right">
                                 <span :class="displayAmountClass(item.amount)">{{ displayAmountValue(item.amount)
                                     }}</span>
+                            </div>
+                            <div class="table-cell text-right">
+                                <span>{{ item.currency }}</span>
                             </div>
                         </div>
                     </div>

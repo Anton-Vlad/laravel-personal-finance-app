@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/node_scripts/node_modules
 /vendor
 .env
 .env.backup

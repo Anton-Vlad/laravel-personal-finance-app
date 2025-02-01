@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
 
             $table->string('name');
-            $table->string('avatar');
-            $table->string('category');
+//            $table->string('avatar');
+            $table->string('category')->nullable();
             $table->datetime('date');
             $table->double('amount');
-            $table->boolean('recurring');
+            $table->boolean('recurring')->default(false);
 
             $table->timestamps();
         });

@@ -19,11 +19,14 @@ class Transaction extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'avatar',
         'category',
         'date',
         'amount',
-        'recurring'
+        'recurring',
+        'user_id',
+        'statement_id',
+        'details',
+        'currency',
     ];
 
     /**
@@ -36,6 +39,7 @@ class Transaction extends Authenticatable
         return [
             'date' => 'datetime',
             'recurring' => 'boolean',
+            'details' => 'array',
         ];
     }
 }
