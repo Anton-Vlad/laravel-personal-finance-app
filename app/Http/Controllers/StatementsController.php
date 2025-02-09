@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStatement;
+use App\Http\Resources\StatementResource;
 use App\Models\Statement;
 use App\Models\Transaction;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -22,9 +23,16 @@ class StatementsController extends Controller
      */
     public function index(Request $request): Response
     {
-        $statements = collect([]);
+        $current_user_id = Auth::id();
+        $statements = Statement::query();
+
+        $statements = $statements->where('user_id', $current_user_id);
+        $statements = $statements->orderBy('updated_at', 'desc');
+
+        $data = $statements->paginate(10);
+
         return Inertia::render('Statements/Index', [
-            'data' => $statements,
+            'data' => StatementResource::collection($data),
             'filters' => [],
         ]);
     }
@@ -34,15 +42,60 @@ class StatementsController extends Controller
      */
     public function new(Request $request): Response
     {
-        return Inertia::render('Statements/UploadStatements', [
+        return Inertia::render('Statements/UploadStatements', []);
+    }
 
-        ]);
+    public function destroy(Request $request, $id): RedirectResponse
+    {
+        try {
+            $current_user_id = Auth::id();
+            $statement = Statement::where('user_id', $current_user_id)->findOrFail($id);
+            $file_path = $statement->file_path;
+
+            // Also delete the stored file!!
+            $statement->delete();
+
+            logger()->info('Statement to delete', [$statement->id]);
+
+            if (Storage::disk('private')->exists($file_path)) {
+                Storage::disk('private')->delete($file_path);
+//                return response()->json(['message' => 'File deleted successfully']);
+
+                logger()->info('Statement to delete', [$file_path]);
+            }
+
+            return redirect()
+                ->route('statements.index')
+                ->with('message', 'Statement deleted successfully ' . $id);
+        } catch (\Exception $e) {
+            logger()->error('Statement destroy failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete statement.');
+        }
+    }
+
+    public function download(Request $request, $id): RedirectResponse
+    {
+        try {
+            $current_user_id = Auth::id();
+            $statement = Statement::where('user_id', $current_user_id)->findOrFail($id);
+
+            logger()->info('Download statement', [$statement->id]);
+
+
+
+            return redirect()
+                ->route('statements.index')
+                ->with('message', 'Statement downloaded successfully ' . $id);
+        } catch (\Exception $e) {
+            logger()->error('Statement download failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to download statement.');
+        }
     }
 
     /**
      * Display the user's profile form.
      */
-    public function upload(StoreStatement $request): JsonResponse
+    public function upload(StoreStatement $request): RedirectResponse
     {
         try {
             $file = $request->file('statement');
@@ -80,6 +133,7 @@ class StatementsController extends Controller
                                     'user_id' => auth()->id(),
                                     'title' => $filename,
                                     'file_path' => $statement_path,
+                                    'file_size' => Storage::disk('private')->size($statement_path)
                                 ]);
 
                                 $processedFiles[] = $filename;
@@ -93,12 +147,12 @@ class StatementsController extends Controller
                     $zip->close();
                     @unlink($tempPath);
 
-                    return response()->json(['message' => 'Zip file processed']);
-//                    return redirect()->route('statements.index')
-//                        ->with('success', count($processedFiles) . ' statements were successfully uploaded');
+                    return redirect()->route('statements.index')
+                        ->with('message', count($processedFiles) . ' statements were successfully uploaded');
                 }
 
-                return response()->json(['message' => 'Could not process zip file']);
+                logger()->error('Could not process zip file');
+                return redirect()->back()->with('error', 'Could not process zip file');
             }
 
             // Handle single file upload
@@ -112,17 +166,16 @@ class StatementsController extends Controller
                 'user_id' => auth()->id(),
                 'title' => $file->getClientOriginalName(),
                 'file_path' => $statement_path,
+                'file_size' => $file->getSize(),
             ]);
 
-            return response()->json(['message' => 'Success']);
-//            return redirect()
-//                ->route('statements.index')
-//                ->with('success', 'Statement uploaded successfully');
+            return redirect()
+                ->route('statements.index')
+                ->with('message', 'Statement uploaded successfully');
 
         } catch (\Exception $e) {
-            \Log::error('Statement upload failed: ' . $e->getMessage());
-            return response()->json(['message' => 'Upload failed. Please try again']);
-//            return redirect()->back()->with('error', 'Upload failed. Please try again.');
+            logger()->error('Statement upload failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Upload failed. Please try again.');
         }
     }
 }

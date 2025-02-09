@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import Sidebar from '@/Components/Navigation/Sidebar.vue';
+import Alert from '@/Components/Alert.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -29,6 +30,8 @@ const toggleSidebar = (payload) => {
 
         <!-- Page Content -->
         <main class="dashboard-main px-4 py-6 sm:px-6 lg:px-8">
+            <Alert />
+
             <slot />
         </main>
 

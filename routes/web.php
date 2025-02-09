@@ -24,8 +24,10 @@ Route::get('/transactions', [TransactionsController::class, 'index'])->middlewar
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/statements', [StatementsController::class, 'index'])->name('statements.index');
+    Route::delete('/statements/{id}', [StatementsController::class, 'destroy'])->name('statements.destroy');
     Route::get('/statements/upload', [StatementsController::class, 'new'])->name('statements.new');
     Route::post('/statements/upload', [StatementsController::class, 'upload'])->name('statements.upload');
+    Route::get('/statements/download/{id}', [StatementsController::class, 'download'])->name('statements.download');
 });
 
 Route::get('/budgets', function () {
