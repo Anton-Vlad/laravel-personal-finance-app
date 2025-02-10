@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,7 @@ use Inertia\Response;
 class TransactionsController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the user's transactions table.
      */
     public function index(Request $request): Response
     {
@@ -27,7 +28,7 @@ class TransactionsController extends Controller
         $data = $data->paginate(10);
 
         return Inertia::render('Transactions', [
-            'data' => $data,
+            'data' => TransactionResource::collection($data),
             'filters' => [],
         ]);
     }

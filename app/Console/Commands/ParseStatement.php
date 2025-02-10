@@ -49,20 +49,25 @@ class ParseStatement extends Command
                 if ($output) {
                     foreach ($output['transactions'] as $entry) {
                         try {
+                            $details = [...$entry['details']];
+                            if (!empty($entry['location'])) {
+                                array_unshift($details, $entry['location']);
+                            }
                             Transaction::create([
                                 'user_id' => $user->id,
                                 'statement_id' => $statement->id,
                                 'currency' => $entry['currency'],
                                 'date' => $entry['date'],
                                 'recurring' => false,
-                                'details' => $entry['details'],
+                                'details' => $details,
                                 'name' => $entry['name'],
                                 'amount' => ($entry['type'] == 'expense' ? (-1) * $entry['amount'] : $entry['amount']),
                             ]);
 
-                            $this->info("Node.js OK" ); // . print_r($output, true)
+                            $this->info("Node.js OK" ); // . print_r($output, true
+
                         } catch (\Exception $e) {
-                            // Log individual record failures but continue
+                            throw $e;
                             $this->error("Failed to process user ID {$user->id}: " . $e->getMessage());
                         }
                     }

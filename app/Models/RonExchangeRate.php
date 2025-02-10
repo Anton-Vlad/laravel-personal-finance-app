@@ -23,4 +23,6 @@ class RonExchangeRate extends Model
         'rate' => 'decimal:4',
         'date' => 'date'
     ];
+
+    public $timestamps = true;
 }

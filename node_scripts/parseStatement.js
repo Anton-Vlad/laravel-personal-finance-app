@@ -20,7 +20,7 @@ const parseStatement = async (filePath) => {
 
     const statementBank = getStatementBank(fileData.text);
     const earliestDate = extractStatementEarliestDate(fileData.text);
-    const statementCurreny = extractCurrency(fileData.text);
+    const statementCurrency = extractCurrency(fileData.text);
     const statementInitialBalance = extractInitialBalance(
         fileData.text,
         statementBank
@@ -33,14 +33,14 @@ const parseStatement = async (filePath) => {
 
     const transactions = parseTransactions(fileData.text, {
         bank: statementBank,
-        currency: statementCurreny,
+        currency: statementCurrency,
         numpages: fileData.numpages
     });
 
 
     console.log(JSON.stringify({
         statementBank,
-        statementCurreny,
+        statementCurrency,
         earliestDate,
         statementInitialBalance,
         statementFinalBalance,

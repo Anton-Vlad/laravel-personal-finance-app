@@ -10,6 +10,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use function Illuminate\Support\defer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -59,7 +61,6 @@ class StatementsController extends Controller
 
             if (Storage::disk('private')->exists($file_path)) {
                 Storage::disk('private')->delete($file_path);
-//                return response()->json(['message' => 'File deleted successfully']);
 
                 logger()->info('Statement to delete', [$file_path]);
             }
@@ -147,6 +148,8 @@ class StatementsController extends Controller
                     $zip->close();
                     @unlink($tempPath);
 
+                    Artisan::call('parse:statement', ['user' => auth()->id()]);
+
                     return redirect()->route('statements.index')
                         ->with('message', count($processedFiles) . ' statements were successfully uploaded');
                 }
@@ -168,6 +171,12 @@ class StatementsController extends Controller
                 'file_path' => $statement_path,
                 'file_size' => $file->getSize(),
             ]);
+
+            $user_id = auth()->id();
+
+//            defer(fn() => Artisan::call('parse:statement', ['user' => $user_id]));
+            Artisan::call('parse:statement', ['user' => $user_id]);
+
 
             return redirect()
                 ->route('statements.index')
