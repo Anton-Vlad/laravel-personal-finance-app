@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class TransactionResource extends JsonResource
 {
@@ -24,8 +25,21 @@ class TransactionResource extends JsonResource
             'amount_raw' => $this->amount,
             'amount_class' => $this->displayAmountClass($this->amount),
             'currency' => $this->currency,
-            'details' => $this->details
+            'details' => $this->filterImportantDetails($this->details)
         ];
+    }
+
+    private function filterImportantDetails($details): array
+    {
+        return Arr::where($details, function ($value, $key) {
+            return !str_contains($value, 'Nr. card') &&
+                    !str_contains($value, 'Autorizare:') &&
+                    !str_contains($value, 'In contul') &&
+                    !str_contains($value, 'Referinta:') &&
+                    !str_contains($value, 'REF.') &&
+                    !str_contains($value, 'Catre:')
+                ;
+        });
     }
 
     private function displayAmountValue(float $val): string {

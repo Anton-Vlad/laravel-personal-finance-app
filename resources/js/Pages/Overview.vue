@@ -7,7 +7,8 @@ import StatsCard2 from "@/Widgets/StatsCard2.vue";
 
 const props = defineProps({
     totalBalance: String|Number,
-    totalTransactions: String|Number
+    totalTransactions: String|Number,
+    expenseIncomeRatio: String|Number
 });
 
 </script>
@@ -29,6 +30,7 @@ const props = defineProps({
             <div class="grid grid-cols-3 gap-3">
                 <StatsCard :label="'Total Balance'" :value="totalBalance" />
                 <StatsCard :label="'Transactions'" :value="totalTransactions" />
+                <StatsCard :label="'Expense/Income Ratio'" :value="expenseIncomeRatio" />
             </div>
 
         </div>
