@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const exactMatchDate = /^((0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4})$/;
 
 const TRANSACTIONS_TABLE_START = "DebitCreditDetalii tranzactieData";
@@ -26,7 +28,9 @@ const ORDONATOR_FLAG = "Ordonator:";
 const LOCATION_FLAGS = [TERMINAL_FLAG, ORDONATOR_FLAG];
 
 const CUMPARARE_POS = "Cumparare POS";
+const CUMPARARE_POS_CORECTIE = "Cumparare POS corectie";
 const INCASARE = "Incasare";
+const INCASARE_VIA_CARD = "Incasare via card";
 const TAXE_SI_COMISIOANE = "Taxe si comisioane";
 const COMISION_OPERATIUNE = "Comision pe operatiune";
 const TRANSFER_HOME_BANK = "Transfer Home'Bank";
@@ -396,11 +400,19 @@ const parseIngStatement = (data, options = {}) => {
         }
     }
 
+    // fs.writeFileSync(__dirname + '/tmp/test-sync.txt', lines.join('\n---\n'));
+
     return extractTransactionsFromLines(lines, options);
 };
 
 const isTransactionHeaderLine = (line) => {
+    if (line.includes(CUMPARARE_POS_CORECTIE)) {
+        return true;
+    }
     if (line.includes(CUMPARARE_POS)) {
+        return true;
+    }
+    if (line.includes(INCASARE_VIA_CARD)) {
         return true;
     }
     if (line.includes(INCASARE)) {
@@ -415,7 +427,7 @@ const isTransactionHeaderLine = (line) => {
     if (line.includes(TRANSFER_HOME_BANK)) {
         return true;
     }
-    if (line.includes(RETRAGERE_NUMERAR)) {
+    if (line.includes(RETRAGERE_NUMERAR) && !line.includes('Comision pentru')) {
         return true;
     }
     if (line.includes(TRANSFER_TERT)) {
@@ -431,8 +443,14 @@ const isTransactionHeaderLine = (line) => {
     return false;
 };
 const getTransactionType = (line) => {
+    if (line.includes(CUMPARARE_POS_CORECTIE)) {
+        return CUMPARARE_POS_CORECTIE;
+    }
     if (line.includes(CUMPARARE_POS)) {
         return CUMPARARE_POS;
+    }
+    if (line.includes(INCASARE_VIA_CARD)) {
+        return INCASARE_VIA_CARD;
     }
     if (line.includes(INCASARE)) {
         return INCASARE;
@@ -446,7 +464,7 @@ const getTransactionType = (line) => {
     if (line.includes(TRANSFER_HOME_BANK)) {
         return TRANSFER_HOME_BANK;
     }
-    if (line.includes(RETRAGERE_NUMERAR)) {
+    if (line.includes(RETRAGERE_NUMERAR) && !line.includes('Comision pentru')) {
         return RETRAGERE_NUMERAR;
     }
     if (line.includes(TRANSFER_TERT)) {
@@ -526,7 +544,7 @@ const extractTransactionsFromLines = (lines, options = {}) => {
                 );
             }
 
-            if ([INCASARE].includes(currentTransaction.type)) {
+            if ([INCASARE, CUMPARARE_POS_CORECTIE, INCASARE_VIA_CARD].includes(currentTransaction.type)) {
                 currentTransaction.price = null;
                 let currentTransactionDate = currentLine.split(
                     currentTransaction.type
@@ -561,7 +579,7 @@ const extractTransactionsFromLines = (lines, options = {}) => {
 
         // End of the line
         if (!nextLine) {
-            if ([INCASARE].includes(currentTransaction.type)) {
+            if ([INCASARE, CUMPARARE_POS_CORECTIE, INCASARE_VIA_CARD].includes(currentTransaction.type)) {
                 let price = currentLine; // the price is the only item on this line
                 currentTransaction.price = getPriceFloatValue(price);
 
@@ -578,7 +596,7 @@ const extractTransactionsFromLines = (lines, options = {}) => {
 
         if (newTransaction) {
             // handle special cases for INCASARE
-            if ([INCASARE].includes(currentTransaction.type)) {
+            if ([INCASARE, CUMPARARE_POS_CORECTIE, INCASARE_VIA_CARD].includes(currentTransaction.type)) {
                 let price = currentLine; // the price is the only item on this line
                 currentTransaction.price = getPriceFloatValue(price);
                 currentTransaction.details.length =

@@ -19,33 +19,36 @@ class TransactionsController extends Controller
      */
     public function index(Request $request): Response
     {
+        $period_type = ($request->has('period_type')) ? $request->input('period_type') : 'year';
+        $period_value = ($request->has('period_value')) ? $request->input('period_value') : '2024';
+
         $data = Transaction::query();
 
-        $data = $data->where('user_id', Auth::id());
+        $data = $data->forAuthUser()->forPeriod($period_type, $period_value);
 
         $data->when($request->has('search'), function ($query) use ($request) {
-            $query->where('name', 'ILIKE', "%{$request->input('search')}%")
-            ->orWhere('details', 'ILIKE', "%{$request->input('search')}%");
+            $searchTerm = "%{$request->input('search')}%";
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'ILIKE', $searchTerm)
+                    ->orWhere('details', 'ILIKE', $searchTerm);
+            });
         });
 
-
-        if ($request->has('search')) {
-            $data = match ($request->input('orderBy')) {
-                'oldest' => $data->orderBy('date', 'asc'),
-                'a2z' => $data->orderBy('name', 'asc'),
-                'z2a' => $data->orderBy('name', 'desc'),
-                'highest' => $data->orderBy('amount', 'desc'),
-                'lowest' => $data->orderBy('amount', 'asc'),
-                default => $data->orderBy('date', 'desc'),
-            };
-        }
-
+        $data = match ($request->input('orderBy')) {
+            'oldest' => $data->orderBy('date', 'asc'),
+            'a2z' => $data->orderBy('name', 'asc'),
+            'z2a' => $data->orderBy('name', 'desc'),
+            'highest' => $data->orderBy('amount', 'desc'),
+            'lowest' => $data->orderBy('amount', 'asc'),
+            default => $data->orderBy('date', 'desc'),
+        };
 
         $data = $data->paginate(10)->withQueryString();
 
         return Inertia::render('Transactions', [
             'data' => TransactionResource::collection($data),
-            'filters' => $request->only(['search', 'orderBy']), // from, to
+            'filters' => $request->only(['search', 'orderBy', 'period_type', 'period_value']), // from, to
         ]);
     }
 }

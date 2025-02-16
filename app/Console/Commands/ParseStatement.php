@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -53,6 +54,8 @@ class ParseStatement extends Command
                             if (!empty($entry['location'])) {
                                 array_unshift($details, $entry['location']);
                             }
+
+                            $this->info("ENTRY");
                             Transaction::create([
                                 'user_id' => $user->id,
                                 'statement_id' => $statement->id,
@@ -82,6 +85,7 @@ class ParseStatement extends Command
             // Rollback transaction in case of failure
             DB::rollBack();
 //            Log::error("Transaction failed: " . $e->getMessage());
+            throw $e;
             $this->error("An error occurred. Transaction rolled back.");
         }
 

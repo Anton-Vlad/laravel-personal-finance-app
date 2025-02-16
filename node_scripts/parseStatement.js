@@ -39,12 +39,12 @@ const parseStatement = async (filePath) => {
 
 
     console.log(JSON.stringify({
-        statementBank,
-        statementCurrency,
-        earliestDate,
-        statementInitialBalance,
-        statementFinalBalance,
-        statementIBAN,
+        // statementBank,
+        // statementCurrency,
+        // earliestDate,
+        // statementInitialBalance,
+        // statementFinalBalance,
+        // statementIBAN,
         transactions
     }));
 }
@@ -60,7 +60,7 @@ if (require.main === module) {
     parseStatement(filePath).catch(console.error);
 
     // parseStatement(
-    //     path.join(__dirname, "../storage/app/private/statements/ING Bank - Extras de cont septembrie_2021_RO80INGB0000999904618126_RON.pdf")
+    //     path.join(__dirname, "../storage/app/private/statements/ING Bank - Extras de cont noiembrie_2024_RO80INGB0000999904618126_RON.pdf")
     // ).catch(console.error);
 
 }

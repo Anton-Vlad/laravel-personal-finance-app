@@ -33,10 +33,12 @@ class TransactionResource extends JsonResource
     {
         return Arr::where($details, function ($value, $key) {
             return !str_contains($value, 'Nr. card') &&
+                    !str_contains($value, 'Numar card:') &&
                     !str_contains($value, 'Autorizare:') &&
                     !str_contains($value, 'In contul') &&
                     !str_contains($value, 'Referinta:') &&
                     !str_contains($value, 'REF.') &&
+                    !str_contains($value, 'Numar autorizare') &&
                     !str_contains($value, 'Catre:')
                 ;
         });

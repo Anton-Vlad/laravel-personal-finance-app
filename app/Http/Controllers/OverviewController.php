@@ -16,16 +16,23 @@ class OverviewController extends Controller
 {
     public function index(Request $request): Response
     {
-        $current_user_id = Auth::id();
+        $period_type = ($request->has('period_type')) ? $request->input('period_type') : 'year';
+        $period_value = ($request->has('period_value')) ? $request->input('period_value') : '2024';
 
-        $total_transactions = Transaction::query()->where('user_id', $current_user_id)->count();
-        $total_balance = Transaction::query()->where('user_id', $current_user_id)->sum('amount');
+        $main_query = Transaction::forAuthUser()->forPeriod($period_type, $period_value)->getQuery();
 
 
-        $total_incomes = floatval(Transaction::query()->where('user_id', $current_user_id)->where('amount', '>=', 0)->sum('amount'));
-        $total_expenses = floatval(Transaction::query()->where('user_id', $current_user_id)->where('amount', '<', 0)->sum('amount'));
+        $total_transactions = (clone $main_query)->count();
+        $total_balance = (clone $main_query)->sum('amount');
 
-        $expense_income_ratio = ($total_incomes != 0 ? $total_expenses / $total_incomes : 0);
+
+        $total_incomes = floatval((clone $main_query)->where('amount', '>=', 0)->sum('amount'));
+        $total_expenses = floatval((clone $main_query)->where('amount', '<', 0)->sum('amount'));
+
+        $income_expense_ratio = ($total_expenses != 0 ? $total_incomes / $total_expenses : 0);
+
+        // chek if prev comparation is doable
+//        $main_query = Transaction::forAuthUser()->forPrevPeriod($period_type, $period_value)->getQuery();
 
         return Inertia::render('Overview', [
 
@@ -33,12 +40,13 @@ class OverviewController extends Controller
             'expenses' => $total_expenses,
             'totalTransactions' => $total_transactions,
             'totalBalance' => $this->displayAmountValue($total_balance) . ' RON',
-            'expenseIncomeRatio' => number_format(abs($expense_income_ratio), 2, '.', ',')
+            'expenseIncomeRatio' => number_format(abs($income_expense_ratio), 2, '.', ','),
+            'filters' => $request->only(['period_type', 'period_value']),
         ]);
     }
 
     private function displayAmountValue(float $val): string {
-        $formattedValue = number_format(abs($val), 0, '.', ',');
+        $formattedValue = number_format(abs($val), 2, '.', ',');
         return ($val >= 0 ? '+' : '-') . $formattedValue;
     }
 }

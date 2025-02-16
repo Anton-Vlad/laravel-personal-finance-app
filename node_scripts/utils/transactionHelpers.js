@@ -1,6 +1,8 @@
 const INCOME_LABELS = [
     // ING labels
     "Incasare",
+    "Incasare via card",
+    "Cumparare POS corectie",
 
     // BT labels
     "Incasare OP",

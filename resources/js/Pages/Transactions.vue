@@ -9,19 +9,11 @@
                     Transactions
                 </h2>
 
-                <Link :href="route('statements.new')"
-                    class="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900"
-                >
-                    Upload new
-                </Link>
+                <PeriodFilter :filters="filters" @period="onPeriodChange" />
             </div>
         </template>
 
         <div class="mx-auto max-w-7xl ">
-
-            <div class="">
-
-            </div>
 
             <div class=" bg-white shadow-lg p-4">
                 <div>
@@ -134,6 +126,7 @@ import {ref, computed, onMounted, watch} from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 import Details from "@/Components/Transaction/Details.vue";
 import debounce from "lodash/debounce";
+import PeriodFilter from "@/Components/PageFilters/PeriodFilter.vue";
 
 const props = defineProps({
     data: Object,
@@ -142,6 +135,8 @@ const props = defineProps({
 
 const search = ref(props.filters.search);
 const orderBy = ref(props.filters.orderBy || 'latest');
+const periodPickerType = ref(props.filters.periodType || 'year');
+const periodPickerValue = ref(props.filters.periodValue || '2024');
 
 onMounted(() => {})
 
@@ -154,18 +149,28 @@ const paginationLinks = computed(() => {
 });
 
 const makeRequest = () => {
-    router.get('/transactions', {search: search.value, orderBy: orderBy.value}, {
+    router.get('/transactions', {
+        search: search.value,
+        orderBy: orderBy.value,
+        period_type: periodPickerType.value,
+        period_value: periodPickerValue.value
+    }, {
         preserveState: true,
         replace: true
     });
 }
 
 watch(search, debounce(function (value) {
-    makeRequest()
+    makeRequest();
 }, 500));
 
 watch(orderBy, value => {
-    makeRequest()
+    makeRequest();
 });
 
+const onPeriodChange = (period) => {
+    periodPickerType.value = period.periodType;
+    periodPickerValue.value = period.periodValue;
+    makeRequest();
+}
 </script>
