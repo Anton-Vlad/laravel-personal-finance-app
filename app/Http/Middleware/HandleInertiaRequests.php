@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'query' => $request->query(), // Pass query params to Inertia
             'auth' => [
                 'user' => $request->user(),
             ],

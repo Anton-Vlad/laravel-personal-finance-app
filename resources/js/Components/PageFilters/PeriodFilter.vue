@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 
 const props = defineProps({
     filters: Array|Object
@@ -106,8 +106,9 @@ const props = defineProps({
 
 const emit = defineEmits(['period'])
 
-const periodPickerType = ref(props.filters.periodType || 'year');
-const periodPickerValue = ref(props.filters.periodValue || '2024');
+let queryParams = route().params;
+const periodPickerType = ref(props.filters.periodType || queryParams.period_type);
+const periodPickerValue = ref(props.filters.periodValue || queryParams.period_value);
 
 const showValuePicker = ref([false, false])
 
@@ -129,8 +130,6 @@ watch(periodPickerType, value => {
         periodType: periodPickerType.value,
         periodValue: null
     })
-}, {
-    immediate: true
 });
 
 watch(periodPickerValue, value => {
@@ -139,4 +138,12 @@ watch(periodPickerValue, value => {
         periodValue: periodPickerValue.value
     })
 });
+
+onMounted(() => {
+    if (periodPickerType.value === 'month') {
+        showValuePicker.value = [true, false];
+    } else if (periodPickerType.value === 'year') {
+        showValuePicker.value = [false, true];
+    }
+})
 </script>

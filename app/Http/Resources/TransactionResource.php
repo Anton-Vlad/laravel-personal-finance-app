@@ -45,7 +45,7 @@ class TransactionResource extends JsonResource
     }
 
     private function displayAmountValue(float $val): string {
-        $formatted = number_format(abs($val)); // Format number with thousands separator
+        $formatted = number_format(abs($val), 2); // Format number with thousands separator
         return ($val >= 0 ? '+' : '-') . $formatted;
     }
 
