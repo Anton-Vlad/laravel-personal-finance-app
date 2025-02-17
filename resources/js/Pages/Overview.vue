@@ -10,7 +10,7 @@
                     Overview
                 </h2>
 
-                <PeriodFilter :filters="filters" @period="onPeriodChange" />
+                <PeriodFilter :filters="filters" :frontendFilters="frontendFilters" @period="onPeriodChange" />
             </div>
         </template>
 
@@ -37,7 +37,8 @@ const props = defineProps({
     totalBalance: String|Number,
     totalTransactions: String|Number,
     expenseIncomeRatio: String|Number,
-    filters: Array|Object
+    filters: Array|Object,
+    frontendFilters: Array|Object
 });
 
 const makeRequest = ({periodType, periodValue}) => {
@@ -48,7 +49,6 @@ const makeRequest = ({periodType, periodValue}) => {
 }
 
 const onPeriodChange = (period) => {
-    console.log('Get For new Period', period)
     makeRequest(period);
 }
 </script>

@@ -6,22 +6,17 @@
             id="periodPickerType"
             class="w-full rounded-md border-gray-200 text-gray-600 hover:text-gray-700 py-2.5 pe-10 shadow-xs sm:text-sm"
         >
-            <optgroup label="Quick picks">
-                <option value="15days">Last 15 days</option>
-                <option value="thisMonth">This month</option>
-                <option value="lastMonth">Last month</option>
-                <option value="last3Months">Last 3 months</option>
-                <option value="thisYear">This year</option>
-            </optgroup>
-
-            <optgroup label="Weeks">
-                <option value="week">Pick a week</option>
-            </optgroup>
-            <optgroup label="Months">
-                <option value="month">Pick a month</option>
-            </optgroup>
-            <optgroup label="Years">
-                <option value="year">Pick a year</option>
+            <optgroup v-for="filter in frontendFilters" :label="filter.label">
+                <template v-if="filter.entity">
+                    <option :value="filter.entity.value">
+                        {{ filter.entity.text }}
+                    </option>
+                </template>
+                <template v-else>
+                    <option v-for="(optionVal, optionKey) in filter.values" :value="optionKey">
+                        {{ optionVal }}
+                    </option>
+                </template>
             </optgroup>
         </select>
 
@@ -32,51 +27,10 @@
             id="monthPicker"
             class="w-full rounded-md ms-3 border-gray-200 text-gray-600 hover:text-gray-700 py-2.5 pe-10 shadow-xs sm:text-sm"
         >
-            <optgroup label="2025">
-                <option value="2025-02">February</option>
-                <option value="2025-01">January</option>
-            </optgroup>
-            <optgroup label="2024">
-                <option value="2024-12">December</option>
-                <option value="2024-11">November</option>
-                <option value="2024-10">October</option>
-                <option value="2024-09">September</option>
-                <option value="2024-08">August</option>
-                <option value="2024-07">July</option>
-                <option value="2024-06">June</option>
-                <option value="2024-05">May</option>
-                <option value="2024-04">April</option>
-                <option value="2024-03">March</option>
-                <option value="2024-02">February</option>
-                <option value="2024-01">January</option>
-            </optgroup>
-            <optgroup label="2023">
-                <option value="2023-12">December</option>
-                <option value="2023-11">November</option>
-                <option value="2023-10">October</option>
-                <option value="2023-09">September</option>
-                <option value="2023-08">August</option>
-                <option value="2023-07">July</option>
-                <option value="2023-06">June</option>
-                <option value="2023-05">May</option>
-                <option value="2023-04">April</option>
-                <option value="2023-03">March</option>
-                <option value="2023-02">February</option>
-                <option value="2023-01">January</option>
-            </optgroup>
-            <optgroup label="2022">
-                <option value="2022-12">December</option>
-                <option value="2022-11">November</option>
-                <option value="2022-10">October</option>
-                <option value="2022-09">September</option>
-                <option value="2022-08">August</option>
-                <option value="2022-07">July</option>
-                <option value="2022-06">June</option>
-                <option value="2022-05">May</option>
-                <option value="2022-04">April</option>
-                <option value="2022-03">March</option>
-                <option value="2022-02">February</option>
-                <option value="2022-01">January</option>
+            <optgroup v-for="(group, index) in frontendFilters[1].groups" :key="group.label+index" :label="group.label">
+                <option v-for="(optionLabel, optionKey) in group.values" :key="optionKey" :value="optionKey">
+                    {{ optionLabel }}
+                </option>
             </optgroup>
         </select>
 
@@ -87,12 +41,9 @@
             id="yearPicker"
             class="w-full rounded-md ms-3 border-gray-200 text-gray-600 hover:text-gray-700 py-2.5 pe-10 shadow-xs sm:text-sm"
         >
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="2020">2020</option>
+                <option v-for="(option) in frontendFilters[2].values" :key="option.label" :value="option.value">
+                    {{ option.label }}
+                </option>
         </select>
     </div>
 </template>
@@ -101,14 +52,15 @@
 import {onMounted, ref, watch} from 'vue';
 
 const props = defineProps({
-    filters: Array|Object
+    filters: Array|Object,
+    frontendFilters: Array|Object
 });
 
 const emit = defineEmits(['period'])
 
 let queryParams = route().params;
-const periodPickerType = ref(props.filters.periodType || queryParams.period_type);
-const periodPickerValue = ref(props.filters.periodValue || queryParams.period_value);
+const periodPickerType = ref((props.filters.periodType || queryParams.period_type) || 'year');
+const periodPickerValue = ref((props.filters.periodValue || queryParams.period_value) || '2024');
 
 const showValuePicker = ref([false, false])
 
@@ -139,7 +91,7 @@ watch(periodPickerValue, value => {
     })
 });
 
-onMounted(() => {
+onMounted(async () => {
     if (periodPickerType.value === 'month') {
         showValuePicker.value = [true, false];
     } else if (periodPickerType.value === 'year') {

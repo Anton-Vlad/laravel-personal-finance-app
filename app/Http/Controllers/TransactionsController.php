@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,7 @@ class TransactionsController extends Controller
         return Inertia::render('Transactions', [
             'data' => TransactionResource::collection($data),
             'filters' => $request->only(['search', 'orderBy', 'period_type', 'period_value']), // from, to
+            'frontend-filters' => config('frontend-filters.period-filter')
         ]);
     }
 }

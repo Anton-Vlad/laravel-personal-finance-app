@@ -35,13 +35,13 @@ class OverviewController extends Controller
 //        $main_query = Transaction::forAuthUser()->forPrevPeriod($period_type, $period_value)->getQuery();
 
         return Inertia::render('Overview', [
-
             'incomes' => $total_incomes,
             'expenses' => $total_expenses,
             'totalTransactions' => $total_transactions,
             'totalBalance' => $this->displayAmountValue($total_balance) . ' RON',
             'expenseIncomeRatio' => number_format(abs($income_expense_ratio), 2, '.', ','),
             'filters' => $request->only(['period_type', 'period_value']),
+            'frontend-filters' => config('frontend-filters.period-filter')
         ]);
     }
 

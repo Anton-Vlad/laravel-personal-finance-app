@@ -9,7 +9,7 @@
                     Transactions
                 </h2>
 
-                <PeriodFilter :filters="filters" @period="onPeriodChange" />
+                <PeriodFilter :filters="filters" :frontendFilters="frontendFilters" @period="onPeriodChange" />
             </div>
         </template>
 
@@ -130,7 +130,8 @@ import PeriodFilter from "@/Components/PageFilters/PeriodFilter.vue";
 
 const props = defineProps({
     data: Object,
-    filters: Array|Object
+    filters: Array|Object,
+    frontendFilters: Array|Object
 });
 
 const search = ref(props.filters.search);
