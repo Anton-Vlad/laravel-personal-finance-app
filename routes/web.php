@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StatementsController;
 use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\BudgetsController;
 use App\Http\Controllers\OverviewController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ Route::get('/', function () {
 Route::get('/overview', [OverviewController::class, 'index'])->middleware(['auth', 'verified'])->name('overview');
 
 Route::get('/transactions', [TransactionsController::class, 'index'])->middleware(['auth', 'verified'])->name('transactions');
+Route::get('/budgets', [BudgetsController::class, 'index'])->middleware(['auth', 'verified'])->name('budgets');
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/statements', [StatementsController::class, 'index'])->name('statements.index');
@@ -28,10 +30,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('/statements/upload', [StatementsController::class, 'upload'])->name('statements.upload');
     Route::get('/statements/download/{id}', [StatementsController::class, 'download'])->name('statements.download');
 });
-
-Route::get('/budgets', function () {
-    return Inertia::render('Budgets');
-})->middleware(['auth', 'verified'])->name('budgets');
 
 Route::get('/pots', function () {
     return Inertia::render('Pots');

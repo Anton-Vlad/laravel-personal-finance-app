@@ -69,10 +69,10 @@
                                     </select>
                                 </div>
                                 <div class="flex items-center">
-                                <label for="categoryFilter" class="text-nowrap text-sm text-gray-600 pe-3">Category</label>
+                                <label for="budgetFilter" class="text-nowrap text-sm text-gray-600 pe-3">Budget</label>
                                 <select
-                                    name="categoryFilter"
-                                    id="categoryFilter"
+                                    name="budgetFilter"
+                                    id="budgetFilter"
                                     class="w-full rounded-md border-gray-200 text-gray-600 hover:text-gray-700 py-2.5 pe-10 shadow-xs sm:text-sm"
                                 >
                                     <option value="latest">All Transactions</option>
